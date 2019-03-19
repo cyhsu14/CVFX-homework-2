@@ -46,6 +46,7 @@ python demo.py --output_image_path results/example1.png --no_post   --cuda 0
 
 ### summer to winter
 
+<img src="./img/compare2win.png" width="600px" />  
 
 
 #### 分析比較:
@@ -53,6 +54,7 @@ MUNIT的summer to winter很明顯的是彩度降低，色調上整體變灰變�
 
 ### winter to summer
 
+<img src="./img/compare2sum.png" width="600px" />
 
 #### 分析比較:
 MUNIT的winter to summer中，他學習到夏天的主要特色就是有大量綠色景觀，所以在原圖中有樹或是植被的部分，會被用較綠的質地取代。但圖中不是自然景觀的部分，例如建築、橋或是道路，就沒辦法被正確辨識，做出對應的效果。
