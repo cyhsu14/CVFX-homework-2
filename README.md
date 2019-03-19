@@ -14,14 +14,20 @@
 <img src="./img/checkpoint2.png" width="600px" />
 
 #### 2. Inference MUNIT in personal image
-由於summer2winter裡的style較為相似，不像edges2shoes/edges2handbags較為多樣，所以隨機產生的十個style裡我挑出了色調或是亮度對比等差距較大的三張作圖比較，儘管看起來相似度還是很高。
+由於summer2winter裡的style較為相似，不像edges2shoes/edges2handbags較為多樣，所以隨機產生的十個style裡我挑出了色調或是亮度對比等差距較大的三張作圖比較，儘管看起來相似度還是很高。上面三組是summer to winter，下面三組是winter to summer，最左邊那張是原圖。
 
 <img src="./img/summer2winter.png" width="600px" />  
 <img src="./img/winter2summer.png" width="600px" />  
 
 
 ## 我們的做法：FastPhotoStyle
-
+目的：將content image轉換成style image的風格，並且盡量保持content的完整與自然度，希望它能像真正的照片一樣，看起來是用相機照出來的。
+困境：過去的轉換通常限制在顏色與色調轉換，或有風格限制（如季節）。Gatys等人的方法在照片與畫作的轉換上效果很好，但在兩張真實圖片裡，會有很多加工的雜訊痕跡。
+作法：stylization - 使用Whitening and Color Transform，根據特徵投影產生style。WCT是為人工的風格轉換設計，所以會有加工的雜訊痕跡。解法：用novel network design。但可能會產生部分不一致的style，解法：smoothing。
+     smoothing   - manifoid ranking algorithm。F1：Stylization transform，但會產生不一致的加工痕跡，所以需要F2：smoothing function。
+     => F2(F1(Ic, Is), Ic) c:content, s:style
+WCT: key idea:用兩個映射來把style feature對應到content上。給Ic, Is，提取Ic->Hc，Is->Hs，
+PhotoWCT: 因為max-pooling會遺失空間資訊，而且upsampling會喪失細節=>+max pooling mask, -upsampling, + unpooling
 
 ## 做法成果之分析比較
 
