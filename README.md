@@ -37,15 +37,15 @@ https://github.com/NVIDIA/FastPhotoStyle
 
 <img src="./img/formula.png" width="600px" />  
 
-I_c(Content image)跟I_s(Style image)先經過F1（PhotoWCT）產生stylization結果Y，然後會將Y與Ic再通過F2（Smoothing），產生最後的照片。
+I_c（Content image）跟 I_s（Style image）先經過F1（PhotoWCT）產生stylization結果Y，然後會將Y與Ic再通過F2（Smoothing），產生最後的照片。
 
-**第一部分:Stylization(use PhotoWCT)**
+**第一部分：Stylization（use PhotoWCT）**
 
 <img src="./img/WCT.png" width="600px" /> 
 
-一般的WCT如圖(a)所示。但是因為做max-pooling後會遺失空間資訊，而upsampling會喪失細節，所以在PhotoWCT裡，它加了max pooling mask以及unpooling(取代掉upsampling)，這兩個是一起使用的，目的是記錄max所取的位置做unpool以保留住空間資訊。
+一般的WCT如圖(a)所示。但是因為做max-pooling後會遺失空間資訊，而upsampling會喪失細節，所以在PhotoWCT裡，它加了max pooling mask以及unpooling（取代掉upsampling），這兩個是一起使用的，目的是記錄max所取的位置做unpool以保留住空間資訊。
 
-**第二部分:Smoothing**
+**第二部分：Smoothing**
 
 Smoothing會輸入目標與第一階結果Y，為了讓相似content的pixel該有相似的style，所以它會比較圖中附近pixel的風格，希望這個pixel可以跟鄰居保持一致但是又不能脫離PhotoWCT的結果太多。而為了滿足這兩點，它需要讓以下這個式子越小越好：
 
