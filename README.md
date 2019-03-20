@@ -56,7 +56,7 @@ yi是在F1結果Y裡的pixel顏色，而ri是在F2結果（R）裡我們想要�
 <img src="./img/smoothing2.png" width="400px" />  
 
 
-I是identical matrix，![](http://latex.codecogs.com/gif.latex?\alpha=\frac{1}{1+\lambda})，![](http://latex.codecogs.com/gif.latex?S=D^{-\frac{1}{2}}WD^{-\frac{1}{2}})，是由Ic計算而來。W也是由Ic計算而來，![](http://latex.codecogs.com/gif.latex?w_{ij}=e^{-||I_i-I_j||^2/\sigma^2})​，Ii、Ij分別是鄰近pixel i、j的RGB值，而σ是一個local window的variance。
+I是identical matrix，![](http://latex.codecogs.com/gif.latex?\alpha=\frac{1}{1+\lambda})，![](http://latex.codecogs.com/gif.latex?S=D^{-\frac{1}{2}}WD^{-\frac{1}{2}})，是由Ic計算而來。W也是由Ic計算而來，![](http://latex.codecogs.com/gif.latex?w_{ij}=e^{-||I_i-I_j||^2/\sigma^2})​，Ii、Ij分別是鄰近pixel i、j的RGB值，而σ是local window的variance。
 
 
 ### Inference
