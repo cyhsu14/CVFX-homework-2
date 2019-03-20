@@ -22,38 +22,41 @@
 
 ## 我們的做法：FastPhotoStyle
 
+https://github.com/NVIDIA/FastPhotoStyle
+
 ### 原理說明
 #### 目的
 
-將content image轉換成style image的風格，並且盡量保持content的完整與自然度，希望它能像真正的照片一樣，看起來是用相機照出來的。
-
-#### 困境
-
-過去的轉換通常限制在顏色與色調轉換，或有風格限制（如季節）。Gatys等人的方法在照片與畫作的轉換上效果很好，但在兩張真實圖片裡，會有很多加工的雜訊痕跡。
+因為那時的style transfer通常限制在顏色與色調轉換，或有風格限制（如季節）；雖然已經有做法能在照片與畫作的轉換上效果很好，但若是兩張真實圖片轉換，就會有很多雜訊痕跡。所以Fast photo style的目的主要是將content image轉換成style image的風格，這兩張都要是真實照片，並且盡量保持content的完整與自然度，希望它轉換後還是能像真正的照片一樣，看起來是用相機照出來的。
 
 #### 作法
 
-將整個流程拆成兩部分 - 風格轉換（stylization）和平滑化（smoothing）。在stylization時，使用有別於傳統Whitening and Color Transform（WCT）的特製PhotoWCT，根據特徵投影產生style。因為WCT是人工的風格轉換合成，所以會有加工的雜訊痕跡還有產生部分不一致的style，所以就要使用smoothing處理這些結果。  
+將整個流程拆成兩部分 - 風格轉換（stylization）和平滑化（smoothing）。在stylization時，使用有別於一般Whitening and Color Transform（WCT）的特製PhotoWCT，但因為做完PhotoWCT後，會有一些相近的區域卻被不一致的轉換，產生不一樣的style，所以就要使用smoothing處理這些結果。  
 
 整體的公式如下：
 
 <img src="./img/formula.png" width="600px" />  
 
-Content image Ic 跟 Style image Is先經過F1（PhotoWCT）產生stylization結果Y，然後會將Y與Ic再通過F2（Smoothing），產生最後的結果。
+Content image I_c 跟 Style image I_s先經過F1（PhotoWCT）產生stylization結果Y，然後會將Y與Ic再通過F2（Smoothing），產生最後的照片。
 
-##### PhotoWCT
+**PhotoWCT**
 
 <img src="./img/WCT.png" width="600px" /> 
 
-一般的WCT如圖(a)所示。但是因為max-pooling會遺失空間資訊，而upsampling會喪失細節，所以在PhotoWCT裡，它加了max pooling mask跟unpooling是一起使用的，目的是記錄max所取的位置做unpool；然後拿掉了upsampling。
+一般的WCT如圖(a)所示。但是因為max-pooling會遺失空間資訊，而upsampling會喪失細節，所以在PhotoWCT裡，它加了max pooling mask跟unpooling，這兩個是一起使用的，目的是記錄max所取的位置做unpool；然後拿掉了upsampling。
 
-##### Smoothing
+**Smoothing**
 
-Smoothing會輸入目標與第一階結果Y，為了讓相似content的pixel該有相似的style，所以它會比較圖中鄰近pixel的風格，但是又不能脫離PhotoWCT的結果太多。而如何做到這件事，它定義了一個smoothing跟fitting的公式如下：
+Smoothing會輸入目標與第一階結果Y，為了讓相似content的pixel該有相似的style，所以它會比較圖中附近pixel的風格，希望這個pixel可以跟鄰居保持一致但是又不能脫離PhotoWCT的結果太多。而為了滿足這兩點，它需要讓以下這個式子越小越好：
 
-<img src="./img/smoothing.png" width="600px" />  
+<img src="./img/smoothing.png" width="500px" />  
 
-yi是在F1結果Y裡的pixel顏色，而ri是在F2結果（R）裡我們想要出現的顏色，\lambda是控制這兩者間的平衡。
+$y_i$是在F1結果Y裡的pixel顏色，而$r_i$是在F2結果（R）裡我們想要出現的顏色， $\lambda$是控制這兩者間的平衡。$d_{ii}$是W的degree metrix的第[i,i]項（$d_{jj}$同理）。而上面這個式子又可以簡化成以下：
+
+<img src="./img/smoothing2.png" width="400px" />  
+
+$I$是identical matrix， $\alpha = \frac{1}{1+\lambda}$，$S=D^{-\frac{1}{2}}WD^{-\frac{1}{2}}$，是由$I_c$計算而來。$W$也是由$I_c$計算而來，$w_{ij}=e^{-||I_i-I_j||^2/\sigma^2}$，$I_i$、$I_j$分別是鄰近pixel i、j的RGB值，而$\sigma$是一個local window的variance。
+
 
 ### Inference
 我們採用FastPhotoStyle的第一種example(without using segmentation mask)，但因為我們電腦安裝的cuda版本與它原本的不同，會出現許多相容性問題，因此決定改成只用CPU mode去執行，而它的code在CPU mode並沒有implement最後post processing的部分，因此我們就捨棄掉post processing的部分。
